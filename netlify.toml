@@ -4,7 +4,9 @@
 
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild"
+  # zisi 不做激进打包，将 node_modules 原样带入函数包：
+  # @libsql/client 依赖平台原生模块（@libsql/linux-x64-gnu），esbuild 打包会漏掉导致 502
+  node_bundler = "zisi"
   included_files = ["views/**/*"]
 
 [dev]
