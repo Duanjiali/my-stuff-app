@@ -1,0 +1,80 @@
+<%- include('partials/head') %>
+<main class="page">
+  <a class="back" href="/outfits">← 搭配</a>
+  <h1 class="page-title"><%= mode === 'edit' ? '编辑搭配' : '创建搭配' %></h1>
+
+  <div class="score-panel card" id="score-panel">
+    <div class="score-panel-top">
+      <span class="score-big" id="score-num">--</span>
+      <span class="score-note" id="score-note">勾选衣物后实时打分</span>
+    </div>
+    <ul class="reasons" id="reasons"></ul>
+  </div>
+
+  <form method="POST" action="<%= mode === 'edit' ? '/outfits/' + outfit.id : '/outfits' %>" id="outfit-form">
+    <div class="card form-card">
+      <label class="field">
+        <span class="field-label">搭配名称</span>
+        <input class="input" name="name" maxlength="30" value="<%= outfit ? outfit.name : '' %>" placeholder="如：周一通勤">
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">场合</span>
+          <select class="input" name="occasion" id="occasion-select">
+            <option value="">不限</option>
+            <% allOccasions.forEach(function (o) { %>
+              <option value="<%= o %>" <%= outfit && outfit.occasion === o ? 'selected' : '' %>><%= { work: '通勤', casual: '休闲', date: '约会', sport: '运动', formal: '正式', home: '居家' }[o] %></option>
+            <% }) %>
+          </select>
+        </label>
+        <div class="field">
+          <span class="field-label">季节</span>
+          <div class="check-row">
+            <% var sl = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' }; %>
+            <% allSeasons.forEach(function (s) { %>
+              <label class="check">
+                <input type="checkbox" name="season_<%= s %>" class="season-check" <%= outfit && outfit.seasons.includes(s) ? 'checked' : '' %>>
+                <span><%= sl[s] %></span>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">已选 <span id="picked-count" class="muted">0</span> 件</span>
+        <div class="strip" id="picked-strip"></div>
+      </div>
+
+      <% var lastCat = null; %>
+      <% items.forEach(function (it, idx) { %>
+        <% if (it.category_name !== lastCat) { lastCat = it.category_name; %>
+          <div class="group-title"><%= it.category_icon %> <%= it.category_name %></div>
+        <% } %>
+        <label class="pick-item">
+          <input type="checkbox" name="item_ids" value="<%= it.id %>" class="pick-check" <%= outfit && outfit.itemIds.includes(it.id) ? 'checked' : '' %>>
+          <% if (it.images.length) { %>
+            <img class="pick-img" src="<%= it.images[0] %>" alt="" loading="lazy">
+          <% } else { %>
+            <span class="pick-img pick-placeholder"><%= it.category_icon %></span>
+          <% } %>
+          <span class="pick-name"><%= it.name %></span>
+          <span class="dots">
+            <% it.colors.slice(0, 3).forEach(function (c) { %>
+              <i class="dot dot-static" data-family="<%= c.family %>"></i>
+            <% }) %>
+          </span>
+        </label>
+      <% }) %>
+
+      <% if (!items.length) { %>
+        <div class="empty">还没有可搭配的衣物，先去<a href="/items/new">添加</a></div>
+      <% } %>
+
+      <button class="btn btn-primary btn-block" type="submit" <%= items.length ? '' : 'disabled' %>>保存搭配</button>
+    </div>
+  </form>
+</main>
+<script src="/js/outfit-editor.js"></script>
+<%- include('partials/nav', { activeTab: activeTab }) %>

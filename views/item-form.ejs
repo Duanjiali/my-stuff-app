@@ -1,0 +1,142 @@
+<%- include('partials/head') %>
+<main class="page">
+  <a class="back" href="/items">← 物品库</a>
+  <h1 class="page-title"><%= mode === 'edit' ? '编辑物品' : '添加物品' %></h1>
+
+  <form method="POST" enctype="multipart/form-data"
+        action="<%= mode === 'edit' ? '/items/' + item.id : '/items' %>" id="item-form">
+    <div class="card form-card">
+      <label class="field">
+        <span class="field-label">品类</span>
+        <select class="input" name="category_id" id="cat-select">
+          <% cats.forEach(function (c) { %>
+            <option value="<%= c.id %>" <%= c.id === cat.id ? 'selected' : '' %>><%= c.icon %> <%= c.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <p class="muted small">切换品类会刷新本页字段，请先选好品类再填写</p>
+
+      <label class="field">
+        <span class="field-label">名称 *</span>
+        <input class="input" name="name" required maxlength="40" value="<%= values.name || '' %>">
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">品牌</span>
+          <input class="input" name="brand" maxlength="30" value="<%= values.brand || '' %>">
+        </label>
+        <label class="field">
+          <span class="field-label">价格</span>
+          <input class="input" type="number" step="0.01" min="0" name="price" value="<%= values.price ?? '' %>">
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="field-label">购入日期</span>
+        <input class="input" type="date" name="purchased_at" value="<%= values.purchased_at || '' %>">
+      </label>
+
+      <div class="field">
+        <span class="field-label">照片</span>
+        <div class="upload-box" id="upload-box">
+          <img id="img-preview" class="upload-preview <%= item && item.images.length ? '' : 'hidden' %>"
+               src="<%= item && item.images.length ? item.images[0] : '' %>" alt="预览">
+          <div id="upload-hint" class="upload-hint <%= item && item.images.length ? 'hidden' : '' %>">拍照或从相册选择</div>
+          <input type="file" id="image-input" name="image" accept="image/*" class="upload-input" aria-label="选择图片">
+        </div>
+        <p class="muted small" id="upload-status"></p>
+      </div>
+
+      <div class="field">
+        <span class="field-label">色系 <span class="muted small">自动识别，可手动修正</span></span>
+        <div id="color-chips" class="color-chips"></div>
+        <input type="hidden" name="colors" id="colors-input"
+               value="<%= JSON.stringify((item ? item.colors : []).map(function (c) { return { family: c.family, ratio: c.ratio, l: c.l, s: c.s }; })) %>">
+        <label class="check">
+          <input type="checkbox" name="is_patterned" id="patterned-check" <%= item && item.is_patterned ? 'checked' : '' %>>
+          <span>花色单品（条纹 / 格子 / 多色块）</span>
+        </label>
+      </div>
+
+      <% if (cat.behaviors.includes('outfit')) { %>
+      <fieldset class="fieldset">
+        <legend>搭配属性</legend>
+        <div class="field">
+          <span class="field-label">适合季节</span>
+          <div class="check-row">
+            <% var sl = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' }; %>
+            <% allSeasons.forEach(function (s) { %>
+              <label class="check">
+                <input type="checkbox" name="season_<%= s %>" <%= item && item.seasons.includes(s) ? 'checked' : '' %>>
+                <span><%= sl[s] %></span>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">适合场合</span>
+          <div class="check-row">
+            <% var ol = { work: '通勤', casual: '休闲', date: '约会', sport: '运动', formal: '正式', home: '居家' }; %>
+            <% allOccasions.forEach(function (o) { %>
+              <label class="check">
+                <input type="checkbox" name="occasion_<%= o %>" <%= item && item.occasions.includes(o) ? 'checked' : '' %>>
+                <span><%= ol[o] %></span>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+        <label class="field">
+          <span class="field-label">正式度</span>
+          <select class="input" name="formality">
+            <option value="">不标注</option>
+            <% [1, 2, 3, 4, 5].forEach(function (n) { %>
+              <option value="<%= n %>" <%= item && item.formality === n ? 'selected' : '' %>><%= n %>（1=居家运动，5=正式礼服）</option>
+            <% }) %>
+          </select>
+        </label>
+      </fieldset>
+      <% } %>
+
+      <% if (cat.fieldSchema.length) { %>
+      <fieldset class="fieldset">
+        <legend><%= cat.name %>属性</legend>
+        <% cat.fieldSchema.forEach(function (f) { %>
+          <% var v = item ? item.ext[f.key] : undefined; %>
+          <% if (f.type === 'text') { %>
+            <label class="field"><span class="field-label"><%= f.label %></span>
+              <input class="input" name="ext_<%= f.key %>" value="<%= v ?? '' %>"></label>
+          <% } else if (f.type === 'number') { %>
+            <label class="field"><span class="field-label"><%= f.label %><%= f.unit ? '（' + f.unit + '）' : '' %></span>
+              <input class="input" type="number" step="any" name="ext_<%= f.key %>" value="<%= v ?? '' %>"></label>
+          <% } else if (f.type === 'date') { %>
+            <label class="field"><span class="field-label"><%= f.label %></span>
+              <input class="input" type="date" name="ext_<%= f.key %>" value="<%= v ?? '' %>"></label>
+          <% } else if (f.type === 'select') { %>
+            <label class="field"><span class="field-label"><%= f.label %></span>
+              <select class="input" name="ext_<%= f.key %>">
+                <option value="">不选</option>
+                <% (f.options || []).forEach(function (opt) { %>
+                  <option value="<%= opt %>" <%= v === opt ? 'selected' : '' %>><%= opt %></option>
+                <% }) %>
+              </select></label>
+          <% } else if (f.type === 'bool') { %>
+            <label class="check">
+              <input type="checkbox" name="ext_<%= f.key %>" <%= v ? 'checked' : '' %>>
+              <span><%= f.label %></span>
+            </label>
+          <% } %>
+        <% }) %>
+      </fieldset>
+      <% } %>
+
+      <button class="btn btn-primary btn-block" type="submit">保存</button>
+    </div>
+  </form>
+</main>
+<script>
+  window.COLOR_FAMILIES = <%- JSON.stringify({ keys: colorKeys, labels: familyLabels, swatches: swatches }) %>;
+  window.CAT_SELECT_BASE = "<%= mode === 'edit' ? ('/items/' + item.id + '/edit') : '/items/new' %>";
+</script>
+<script src="/js/upload.js"></script>
+<%- include('partials/nav', { activeTab: activeTab }) %>

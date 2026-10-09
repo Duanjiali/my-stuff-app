@@ -1,0 +1,41 @@
+<%- include('partials/head') %>
+<main class="page">
+  <h1 class="page-title">我的物品</h1>
+
+  <div class="stat-row">
+    <a class="card stat" href="/items">
+      <span class="stat-num"><%= stats.items %></span><span class="stat-label">物品</span>
+    </a>
+    <a class="card stat" href="/categories">
+      <span class="stat-num"><%= stats.cats %></span><span class="stat-label">品类</span>
+    </a>
+    <a class="card stat" href="/outfits">
+      <span class="stat-num"><%= stats.outfits %></span><span class="stat-label">搭配</span>
+    </a>
+  </div>
+
+  <div class="quick-row">
+    <a class="btn btn-primary" href="/items/new">添加物品</a>
+    <a class="btn btn-ghost" href="/outfits/new">创建搭配</a>
+  </div>
+
+  <h2 class="section-title">最近添加</h2>
+  <% if (!recent.length) { %>
+    <div class="card empty">还没有物品，点击上方「添加物品」开始入库</div>
+  <% } else { %>
+    <div class="grid">
+      <% recent.forEach(function (it) { %>
+        <a class="card item-card" href="/items/<%= it.id %>">
+          <% if (it.images.length) { %>
+            <img class="item-img" src="<%= it.images[0] %>" alt="<%= it.name %>" loading="lazy">
+          <% } else { %>
+            <div class="item-img item-img-placeholder"><%= it.category_icon %></div>
+          <% } %>
+          <span class="item-name"><%= it.name %></span>
+          <span class="item-cat"><%= it.category_name %></span>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+</main>
+<%- include('partials/nav', { activeTab: activeTab }) %>

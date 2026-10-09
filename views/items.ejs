@@ -1,0 +1,66 @@
+<%- include('partials/head') %>
+<main class="page">
+  <div class="page-head">
+    <h1 class="page-title">物品库</h1>
+    <% if (filters.status !== 'archived') { %>
+      <a class="btn btn-small btn-primary" href="/items/new">添加</a>
+    <% } %>
+  </div>
+
+  <% if (filters.status === 'archived') { %>
+    <div class="alert alert-info">正在查看已归档物品 <a href="/items">返回物品库</a></div>
+  <% } %>
+
+  <form class="searchbar" method="GET" action="/items">
+    <input type="hidden" name="category" value="<%= filters.category %>">
+    <input type="hidden" name="status" value="<%= filters.status %>">
+    <input class="input" type="search" name="q" value="<%= filters.q %>" placeholder="搜索名称或品牌">
+    <select class="input select-sm" name="color" onchange="this.form.submit()">
+      <option value="">颜色</option>
+      <% colorKeys.forEach(function (k) { %>
+        <option value="<%= k %>" <%= filters.color === k ? 'selected' : '' %>><%= familyLabels[k] %></option>
+      <% }) %>
+    </select>
+  </form>
+
+  <div class="chips">
+    <a class="chip <%= !filters.category ? 'is-active' : '' %>" href="/items">全部</a>
+    <% cats.forEach(function (c) { %>
+      <a class="chip <%= String(filters.category) === String(c.id) ? 'is-active' : '' %>"
+         href="/items?category=<%= c.id %>&status=<%= filters.status %>"><%= c.icon %> <%= c.name %></a>
+    <% }) %>
+  </div>
+
+  <% if (filters.status !== 'archived') { %>
+    <p class="muted small"><a href="/items?status=archived">已归档 (<%= archivedCount %>)</a></p>
+  <% } %>
+
+  <% if (!items.length) { %>
+    <div class="card empty">
+      <p><%= filters.status === 'archived' ? '没有已归档物品' : '这里空空如也' %></p>
+      <% if (filters.status !== 'archived') { %><a class="btn btn-primary" href="/items/new">添加第一件</a><% } %>
+    </div>
+  <% } else { %>
+    <div class="grid">
+      <% items.forEach(function (it) { %>
+        <a class="card item-card" href="/items/<%= it.id %>">
+          <% if (it.images.length) { %>
+            <img class="item-img" src="<%= it.images[0] %>" alt="<%= it.name %>" loading="lazy">
+          <% } else { %>
+            <div class="item-img item-img-placeholder"><%= it.category_icon %></div>
+          <% } %>
+          <span class="item-name"><%= it.name %><%= it.is_patterned ? ' ·花' : '' %></span>
+          <span class="item-meta">
+            <span class="item-cat"><%= it.category_name %></span>
+            <span class="dots">
+              <% it.colors.slice(0, 3).forEach(function (c) { %>
+                <i class="dot" style="background:<%= swatches[c.family] || '#cbd5e1' %>"></i>
+              <% }) %>
+            </span>
+          </span>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+</main>
+<%- include('partials/nav', { activeTab: activeTab }) %>

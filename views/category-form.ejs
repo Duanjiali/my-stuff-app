@@ -1,0 +1,45 @@
+<%- include('partials/head') %>
+<main class="page">
+  <a class="back" href="/categories">← 品类管理</a>
+  <h1 class="page-title"><%= mode === 'edit' ? '编辑品类' : '新建品类' %></h1>
+
+  <form method="POST" action="<%= mode === 'edit' ? '/categories/' + cat.id : '/categories' %>" id="category-form">
+    <div class="card form-card">
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">名称 *</span>
+          <input class="input" name="name" required maxlength="20" value="<%= cat ? cat.name : '' %>" placeholder="如：洗衣液">
+        </label>
+        <label class="field">
+          <span class="field-label">图标（单字）</span>
+          <input class="input" name="icon" maxlength="2" value="<%= cat ? cat.icon : '' %>" placeholder="洗">
+        </label>
+      </div>
+
+      <div class="field">
+        <span class="field-label">行为模块</span>
+        <% behaviors.forEach(function (b) { %>
+          <label class="check check-block">
+            <input type="checkbox" name="behavior_<%= b %>" <%= cat && cat.behaviors.includes(b) ? 'checked' : '' %>>
+            <span><b><%= behaviorLabels[b] %></b><br><span class="muted small"><%= behaviorDesc[b] %></span></span>
+          </label>
+        <% }) %>
+      </div>
+
+      <div class="field">
+        <span class="field-label">自定义字段 <span class="muted small">最多 12 个；改名不影响旧数据，删字段只是不再显示</span></span>
+        <div id="fields-editor"></div>
+        <button class="btn btn-ghost btn-small" type="button" id="add-field">加字段</button>
+      </div>
+
+      <input type="hidden" name="fields" id="fields-json" value="<%= JSON.stringify(cat ? cat.fieldSchema : []) %>">
+      <button class="btn btn-primary btn-block" type="submit">保存品类</button>
+    </div>
+  </form>
+</main>
+<script>
+  window.FIELD_TYPES = <%- JSON.stringify(['text', 'number', 'date', 'select', 'bool']) %>;
+  window.INIT_SCHEMA = <%- JSON.stringify(cat ? cat.fieldSchema : []) %>;
+</script>
+<script src="/js/category-form.js"></script>
+<%- include('partials/nav', { activeTab: activeTab }) %>

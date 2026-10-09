@@ -1,0 +1,40 @@
+<%- include('partials/head') %>
+<main class="page">
+  <div class="page-head">
+    <h1 class="page-title">品类管理</h1>
+    <a class="btn btn-small btn-primary" href="/categories/new">新建</a>
+  </div>
+
+  <% if (err === 'has_items') { %>
+    <div class="alert alert-error">该品类下还有物品，不能删除（数据安全：删配置永不删数据）。请先转移或归档物品。</div>
+  <% } %>
+  <% if (err === 'no_category') { %>
+    <div class="alert alert-info">还没有品类，请先新建一个</div>
+  <% } %>
+
+  <p class="muted small">品类是配置而非代码：新建品类后立即可用；勾选行为模块决定它获得哪些深度功能。</p>
+
+  <% cats.forEach(function (c) { %>
+    <div class="card row-card">
+      <span class="cat-icon"><%= c.icon %></span>
+      <div class="row-main">
+        <span class="row-title"><%= c.name %></span>
+        <span class="row-sub">
+          <% c.behaviors.forEach(function (b) { %><span class="tag"><%= behaviorLabels[b] %></span><% }) %>
+          <span class="muted"><%= c.itemCount %> 件 · <%= c.fieldSchema.length %> 个自定义字段</span>
+        </span>
+      </div>
+      <div class="row-ops">
+        <a class="link" href="/categories/<%= c.id %>/edit">编辑</a>
+        <form method="POST" action="/categories/<%= c.id %>/delete" onsubmit="return confirm('确认删除品类「<%= c.name %>」？')">
+          <button class="link link-danger" type="submit">删除</button>
+        </form>
+      </div>
+    </div>
+  <% }) %>
+
+  <form method="POST" action="/logout" class="logout-row">
+    <button class="link link-danger" type="submit">退出登录</button>
+  </form>
+</main>
+<%- include('partials/nav', { activeTab: activeTab }) %>

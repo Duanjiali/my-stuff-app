@@ -1,0 +1,12 @@
+{
+  "name": "MyStuff 个人物品管家",
+  "short_name": "MyStuff",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f6f7",
+  "theme_color": "#17181c",
+  "icons": [
+    { "src": "/icons/icon.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon.png", "sizes": "1024x1024", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,19 @@
+[build]
+  command = "npm install"
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  included_files = ["views/**/*"]
+
+[dev]
+  command = "npm run dev"
+  targetPort = 3000
+
+# 所有未命中静态文件的路径交给 Express 函数处理；
+# publish 目录里存在的文件仍由 CDN 直出（默认 force=false 行为）
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200

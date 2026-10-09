@@ -1,0 +1,52 @@
+<%- include('partials/head') %>
+<main class="page">
+  <a class="back" href="/outfits">← 搭配</a>
+
+  <div class="card">
+    <div class="page-head">
+      <h1 class="detail-title"><%= outfit.isFavorite ? '★ ' : '' %><%= outfit.name %></h1>
+      <% if (outfit.score !== null && outfit.score !== undefined) { %>
+        <span class="score-badge score-badge-lg <%= outfit.score >= 80 ? 'score-good' : (outfit.score >= 60 ? 'score-mid' : 'score-bad') %>"><%= outfit.score %></span>
+      <% } %>
+    </div>
+    <p class="muted">
+      <%= outfit.occasion ? (occasionLabels[outfit.occasion] || outfit.occasion) : '不限场合' %>
+      <% if (outfit.seasons.length) { %> · <%= outfit.seasons.map(function (s) { return seasonLabels[s] || s; }).join('/') %> 季<% } %>
+    </p>
+
+    <ul class="reasons">
+      <% outfit.reasons.forEach(function (r) { %>
+        <li class="reason reason-<%= r.level %>"><%= r.text %></li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <div class="grid">
+    <% members.forEach(function (it) { %>
+      <a class="card item-card" href="/items/<%= it.id %>">
+        <% if (it.images.length) { %>
+          <img class="item-img" src="<%= it.images[0] %>" alt="<%= it.name %>" loading="lazy">
+        <% } else { %>
+          <div class="item-img item-img-placeholder"><%= it.category_icon %></div>
+        <% } %>
+        <span class="item-name"><%= it.name %></span>
+      </a>
+    <% }) %>
+  </div>
+
+  <div class="btn-row">
+    <form method="POST" action="/outfits/<%= outfit.id %>/wear">
+      <button class="btn btn-primary" type="submit">记一次穿着</button>
+    </form>
+    <form method="POST" action="/outfits/<%= outfit.id %>/favorite">
+      <button class="btn btn-ghost" type="submit"><%= outfit.isFavorite ? '取消收藏' : '收藏' %></button>
+    </form>
+  </div>
+  <div class="btn-row">
+    <a class="btn btn-ghost" href="/outfits/<%= outfit.id %>/edit">编辑</a>
+    <form method="POST" action="/outfits/<%= outfit.id %>/delete" onsubmit="return confirm('确认删除该搭配？')">
+      <button class="btn btn-danger-ghost" type="submit">删除</button>
+    </form>
+  </div>
+</main>
+<%- include('partials/nav', { activeTab: activeTab }) %>

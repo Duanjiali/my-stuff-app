@@ -1,0 +1,17 @@
+<%- include('partials/head') %>
+<main class="login-wrap">
+  <div class="card login-card">
+    <h1 class="login-title">MyStuff</h1>
+    <p class="login-sub">个人物品管家</p>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+    <form method="POST" action="/login">
+      <label class="field">
+        <span class="field-label">访问密码</span>
+        <input class="input" type="password" name="password" autocomplete="current-password" required autofocus>
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">进入</button>
+    </form>
+  </div>
+</main>
+</body>
+</html>

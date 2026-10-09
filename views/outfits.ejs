@@ -1,0 +1,35 @@
+<%- include('partials/head') %>
+<main class="page">
+  <div class="page-head">
+    <h1 class="page-title">搭配</h1>
+    <a class="btn btn-small btn-primary" href="/outfits/new">创建</a>
+  </div>
+
+  <% if (!outfits.length) { %>
+    <div class="card empty">
+      <p>还没有搭配方案</p>
+      <a class="btn btn-primary" href="/outfits/new">创建第一个搭配</a>
+    </div>
+  <% } %>
+
+  <% outfits.forEach(function (o) { %>
+    <a class="card outfit-card" href="/outfits/<%= o.id %>">
+      <div class="outfit-head">
+        <span class="row-title"><%= o.isFavorite ? '★ ' : '' %><%= o.name %></span>
+        <% if (o.score !== null && o.score !== undefined) { %>
+          <span class="score-badge <%= o.score >= 80 ? 'score-good' : (o.score >= 60 ? 'score-mid' : 'score-bad') %>"><%= o.score %></span>
+        <% } %>
+      </div>
+      <div class="strip">
+        <% o.itemIds.forEach(function (id) { var it = itemMap.get(id); if (!it) return; %>
+          <% if (it.images.length) { %>
+            <img class="strip-img" src="<%= it.images[0] %>" alt="<%= it.name %>" loading="lazy">
+          <% } else { %>
+            <span class="strip-img strip-placeholder"><%= it.category_icon %></span>
+          <% } %>
+        <% }) %>
+      </div>
+    </a>
+  <% }) %>
+</main>
+<%- include('partials/nav', { activeTab: activeTab }) %>

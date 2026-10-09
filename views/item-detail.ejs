@@ -1,0 +1,53 @@
+<%- include('partials/head') %>
+<main class="page">
+  <a class="back" href="/items">← 物品库</a>
+
+  <div class="card detail-card">
+    <% if (item.images.length) { %>
+      <img class="detail-img" src="<%= item.images[0] %>" alt="<%= item.name %>">
+    <% } %>
+    <h1 class="detail-title"><%= item.name %><% if (item.is_patterned) { %><span class="tag tag-warn">花色</span><% } %></h1>
+    <p class="muted"><%= cat.icon %> <%= cat.name %><% if (item.status === 'archived') { %> · 已归档<% } %></p>
+
+    <dl class="kv">
+      <% if (item.brand) { %><div><dt>品牌</dt><dd><%= item.brand %></dd></div><% } %>
+      <% if (item.price !== null && item.price !== undefined) { %><div><dt>价格</dt><dd><%= item.price %></dd></div><% } %>
+      <% if (item.purchased_at) { %><div><dt>购入</dt><dd><%= item.purchased_at %></dd></div><% } %>
+      <% if (item.colors.length) { %>
+        <div><dt>色系</dt>
+          <dd class="dots">
+            <% item.colors.forEach(function (c) { %>
+              <span class="color-chip-static"><i class="dot" style="background:<%= swatches[c.family] || '#cbd5e1' %>"></i><%= familyLabels[c.family] || c.family %></span>
+            <% }) %>
+          </dd>
+        </div>
+      <% } %>
+      <% if (item.seasons.length) { %><div><dt>季节</dt><dd><%= item.seasons.map(function (s) { return seasonLabels[s] || s; }).join(' / ') %></dd></div><% } %>
+      <% if (item.occasions.length) { %><div><dt>场合</dt><dd><%= item.occasions.map(function (o) { return occasionLabels[o] || o; }).join(' / ') %></dd></div><% } %>
+      <% if (item.formality) { %><div><dt>正式度</dt><dd><%= item.formality %> / 5</dd></div><% } %>
+      <div><dt>穿着</dt><dd><%= item.wear_count %> 次<% if (item.last_worn_at) { %> · 最近 <%= new Date(item.last_worn_at).toISOString().slice(0, 10) %><% } %></dd></div>
+      <% (item.categorySchema || []).forEach(function (f) { %>
+        <% var v = item.ext[f.key]; %>
+        <% if (v !== undefined && v !== null && v !== '') { %>
+          <div><dt><%= f.label %></dt>
+            <dd><%= f.type === 'bool' ? (v ? '是' : '否') : (v + (f.unit || '')) %></dd>
+          </div>
+        <% } %>
+      <% }) %>
+    </dl>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn btn-ghost" href="/items/<%= item.id %>/edit">编辑</a>
+    <% if (item.status === 'active') { %>
+      <form method="POST" action="/items/<%= item.id %>/archive" onsubmit="return confirm('归档后不在物品库显示，确认？')">
+        <button class="btn btn-danger-ghost" type="submit">归档</button>
+      </form>
+    <% } else { %>
+      <form method="POST" action="/items/<%= item.id %>/restore">
+        <button class="btn btn-primary" type="submit">恢复</button>
+      </form>
+    <% } %>
+  </div>
+</main>
+<%- include('partials/nav', { activeTab: activeTab }) %>

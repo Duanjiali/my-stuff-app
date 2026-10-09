@@ -1,0 +1,15 @@
+<%
+  var tabs = [
+    { key: 'home', label: '首页', href: '/' },
+    { key: 'items', label: '物品', href: '/items' },
+    { key: 'outfits', label: '搭配', href: '/outfits' },
+    { key: 'settings', label: '设置', href: '/categories' },
+  ];
+%>
+<nav class="tabbar">
+  <% tabs.forEach(function (t) { %>
+    <a class="tabbar-item <%= activeTab === t.key ? 'is-active' : '' %>" href="<%= t.href %>"><%= t.label %></a>
+  <% }) %>
+</nav>
+</body>
+</html>
