@@ -24,11 +24,16 @@ const BEHAVIOR_LABELS = {
 // 字段类型（v1 封顶 5 种）
 const FIELD_TYPES = ['text', 'number', 'date', 'select', 'bool'];
 
+// 穿着部位槽位：仅"可搭配"品类使用，决定人形预览中的叠放位置
+const SLOTS = ['top', 'bottom', 'dress', 'outer', 'shoes'];
+const SLOT_LABELS = { top: '上衣', bottom: '下装', dress: '连衣裙', outer: '外套', shoes: '鞋子' };
+
 function seasonLabel(s) { return SEASON_LABELS[s] || s; }
 function occasionLabel(o) { return OCCASION_LABELS[o] || o; }
 
 module.exports = {
   SEASONS, SEASON_LABELS, OCCASIONS, OCCASION_LABELS,
   BEHAVIORS, BEHAVIOR_LABELS, FIELD_TYPES,
+  SLOTS, SLOT_LABELS,
   seasonLabel, occasionLabel,
 };

@@ -11,6 +11,8 @@
     <ul class="reasons" id="reasons"></ul>
   </div>
 
+  <%- include('partials/doll', { dollItems: initDollItems }) %>
+
   <form method="POST" action="<%= mode === 'edit' ? '/outfits/' + outfit.id : '/outfits' %>" id="outfit-form">
     <div class="card form-card">
       <label class="field">
@@ -52,7 +54,7 @@
         <% if (it.category_name !== lastCat) { lastCat = it.category_name; %>
           <div class="group-title"><%= it.category_icon %> <%= it.category_name %></div>
         <% } %>
-        <label class="pick-item">
+        <label class="pick-item" data-slot="<%= it.slot || '' %>" data-image="<%= it.images[0] || '' %>" data-icon="<%= it.category_icon %>" data-name="<%= it.name %>">
           <input type="checkbox" name="item_ids" value="<%= it.id %>" class="pick-check" <%= outfit && outfit.itemIds.includes(it.id) ? 'checked' : '' %>>
           <% if (it.images.length) { %>
             <img class="pick-img" src="<%= it.images[0] %>" alt="" loading="lazy">
@@ -76,5 +78,5 @@
     </div>
   </form>
 </main>
-<script src="/js/outfit-editor.js"></script>
+<script src="/js/outfit-editor.js?v=<%= STATIC_VER %>"></script>
 <%- include('partials/nav', { activeTab: activeTab }) %>

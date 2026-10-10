@@ -1,0 +1,23 @@
+<%# 人形穿搭预览：人体轮廓线稿 + 按"穿着部位"叠放衣物图片 %>
+<%# 放置规则在 public/js/doll.js（每部位保留最后一件；连衣裙遮盖上下装） %>
+<div class="card doll-card">
+  <div class="field-label">穿搭预览</div>
+  <div class="doll-canvas">
+    <svg class="doll-body" viewBox="0 0 120 260" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="60" cy="24" r="15" />
+        <line x1="60" y1="39" x2="60" y2="50" />
+        <path d="M44 50 H76 L80 64 L82 114 H38 L40 64 Z" />
+        <path d="M44 54 L30 68 L25 112" />
+        <path d="M76 54 L90 68 L95 112" />
+        <path d="M44 114 L41 168 L38 248" />
+        <path d="M76 114 L79 168 L82 248" />
+        <path d="M60 114 L60 146" />
+      </g>
+    </svg>
+    <div class="doll-items" id="doll-items"></div>
+  </div>
+  <div class="doll-hint muted small" id="doll-hint"></div>
+</div>
+<script>window.__DOLL_INITIAL = <%- JSON.stringify(dollItems || []).replace(/<\//g, '<\\/') %>;</script>
+<script src="/js/doll.js?v=<%= STATIC_VER %>"></script>

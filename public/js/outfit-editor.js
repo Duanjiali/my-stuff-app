@@ -2,6 +2,8 @@
 (function () {
   var checks = Array.prototype.slice.call(document.querySelectorAll('.pick-check'));
   if (!checks.length) return;
+  // 勾选顺序（同部位后勾的覆盖显示）；初始为已勾选项（编辑模式）
+  var pickedOrder = checks.filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
   var scoreNum = document.getElementById('score-num');
   var note = document.getElementById('score-note');
   var reasonsEl = document.getElementById('reasons');
@@ -50,6 +52,31 @@
     countEl.textContent = n;
   }
 
+  function findCheck(id) {
+    for (var i = 0; i < checks.length; i++) if (checks[i].value === id) return checks[i];
+    return null;
+  }
+
+  // 人形预览：按勾选顺序取出物品的部位/图片信息交给 doll.js 渲染
+  function updateDoll() {
+    if (!window.Doll) return;
+    var items = [];
+    pickedOrder.forEach(function (id) {
+      var c = findCheck(id);
+      if (!c) return;
+      var el = c.closest('.pick-item');
+      if (!el) return;
+      items.push({
+        id: Number(id),
+        name: el.getAttribute('data-name') || '',
+        slot: el.getAttribute('data-slot') || '',
+        image: el.getAttribute('data-image') || '',
+        icon: el.getAttribute('data-icon') || '',
+      });
+    });
+    window.Doll.render(items);
+  }
+
   function requestScore() {
     var ids = pickedIds();
     if (!ids.length) {
@@ -87,7 +114,13 @@
 
   checks.forEach(function (c) {
     c.addEventListener('change', function () {
+      if (c.checked) {
+        if (pickedOrder.indexOf(c.value) < 0) pickedOrder.push(c.value);
+      } else {
+        pickedOrder = pickedOrder.filter(function (v) { return v !== c.value; });
+      }
       updateStrip();
+      updateDoll();
       clearTimeout(timer);
       timer = setTimeout(requestScore, 150);
     });
@@ -96,5 +129,6 @@
   seasonChecks.forEach(function (sc) { sc.addEventListener('change', requestScore); });
 
   updateStrip();
+  updateDoll();
   requestScore(); // 编辑模式进入时按已选成员初始打分
 })();

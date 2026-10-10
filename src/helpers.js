@@ -23,6 +23,7 @@ function parseItem(row) {
     occasions: parseJson(row.occasions, []),
     ext: parseJson(row.ext, {}),
     isPatterned: !!row.is_patterned,
+    slot: row.slot || '',
   };
 }
 

@@ -1,12 +1,15 @@
 // Service Worker：仅缓存静态资源（cache-first），页面导航始终走网络（SSR）
-const CACHE = 'mystuff-v1';
+// 版本策略：预缓存清单与模板引用（app.js 的 STATIC_VER）共用同一版本号，
+// 改 public/ 下任何静态文件后：升 CACHE 版本 + ASSETS 里的 ?v= + app.js 的 STATIC_VER
+const CACHE = 'mystuff-v2';
 const ASSETS = [
-  '/css/style.css',
-  '/js/upload.js',
-  '/js/category-form.js',
-  '/js/outfit-editor.js',
-  '/manifest.webmanifest',
-  '/icons/icon.png',
+  '/css/style.css?v=2',
+  '/js/upload.js?v=2',
+  '/js/category-form.js?v=2',
+  '/js/outfit-editor.js?v=2',
+  '/js/doll.js?v=2',
+  '/manifest.webmanifest?v=2',
+  '/icons/icon.png?v=2',
 ];
 
 self.addEventListener('install', (event) => {

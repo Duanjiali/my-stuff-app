@@ -21,6 +21,8 @@
     </ul>
   </div>
 
+  <%- include('partials/doll', { dollItems: dollItems }) %>
+
   <div class="grid">
     <% members.forEach(function (it) { %>
       <a class="card item-card" href="/items/<%= it.id %>">

@@ -95,6 +95,15 @@
             <% }) %>
           </select>
         </label>
+        <label class="field">
+          <span class="field-label">穿着部位 <span class="muted small">决定搭配预览里的位置</span></span>
+          <select class="input" name="slot">
+            <option value="">不设置</option>
+            <% allSlots.forEach(function (s) { %>
+              <option value="<%= s %>" <%= item && item.slot === s ? 'selected' : '' %>><%= slotLabels[s] %></option>
+            <% }) %>
+          </select>
+        </label>
       </fieldset>
       <% } %>
 
@@ -138,5 +147,5 @@
   window.COLOR_FAMILIES = <%- JSON.stringify({ keys: colorKeys, labels: familyLabels, swatches: swatches }) %>;
   window.CAT_SELECT_BASE = "<%= mode === 'edit' ? ('/items/' + item.id + '/edit') : '/items/new' %>";
 </script>
-<script src="/js/upload.js"></script>
+<script src="/js/upload.js?v=<%= STATIC_VER %>"></script>
 <%- include('partials/nav', { activeTab: activeTab }) %>

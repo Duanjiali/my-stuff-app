@@ -3,7 +3,7 @@ const multer = require('multer');
 const { db } = require('../db');
 const { parseItem, parseCategory, collectExt, httpError } = require('../helpers');
 const { saveImage } = require('../upload');
-const { SEASONS, OCCASIONS } = require('../constants');
+const { SEASONS, OCCASIONS, SLOTS, SLOT_LABELS } = require('../constants');
 const { FAMILY_LABELS, FAMILY_SWATCHES } = require('../scoring/color');
 
 const router = express.Router();
@@ -84,6 +84,7 @@ async function renderForm(req, res, item) {
     cats, cat, item,
     values: item || {},
     allSeasons: SEASONS, allOccasions: OCCASIONS,
+    allSlots: SLOTS, slotLabels: SLOT_LABELS,
     colorKeys: COLOR_KEYS, familyLabels: FAMILY_LABELS, swatches: FAMILY_SWATCHES,
   });
 }
@@ -111,6 +112,10 @@ async function saveItem(req, res, item) {
   const seasons = SEASONS.filter((s) => req.body[`season_${s}`]);
   const occasions = OCCASIONS.filter((o) => req.body[`occasion_${o}`]);
   const formality = req.body.formality ? Number(req.body.formality) : null;
+  // 表单未渲染 slot 字段（非搭配品类）时保留旧值；提交空串表示主动清空
+  const slot = 'slot' in req.body
+    ? (SLOTS.includes(req.body.slot) ? req.body.slot : '')
+    : (item && item.slot ? item.slot : '');
   const ext = collectExt(cat.fieldSchema, req.body);
 
   let images = item ? item.images : [];
@@ -125,20 +130,20 @@ async function saveItem(req, res, item) {
   if (item) {
     await db.execute({
       sql: `UPDATE items SET category_id=?, name=?, brand=?, price=?, purchased_at=?, images=?, colors=?, is_patterned=?,
-            seasons=?, occasions=?, formality=?, ext=? WHERE id=?`,
+            seasons=?, occasions=?, formality=?, slot=?, ext=? WHERE id=?`,
       args: [catId, req.body.name, req.body.brand || '', numOrNull(req.body.price), req.body.purchased_at || '',
         JSON.stringify(images), JSON.stringify(colors), isPatterned,
-        JSON.stringify(seasons), JSON.stringify(occasions), formality, JSON.stringify(mergedExt), item.id],
+        JSON.stringify(seasons), JSON.stringify(occasions), formality, slot, JSON.stringify(mergedExt), item.id],
     });
     return item.id;
   }
   const rs = await db.execute({
     sql: `INSERT INTO items (category_id, name, brand, price, purchased_at, images, colors, is_patterned,
-          seasons, occasions, formality, ext, status, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)`,
+          seasons, occasions, formality, slot, ext, status, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)`,
     args: [catId, req.body.name, req.body.brand || '', numOrNull(req.body.price), req.body.purchased_at || '',
       JSON.stringify(images), JSON.stringify(colors), isPatterned,
-      JSON.stringify(seasons), JSON.stringify(occasions), formality, JSON.stringify(ext), Date.now()],
+      JSON.stringify(seasons), JSON.stringify(occasions), formality, slot, JSON.stringify(ext), Date.now()],
   });
   return Number(rs.lastInsertRowid);
 }

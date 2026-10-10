@@ -53,6 +53,10 @@ async function createApp() {
   app.set('view engine', 'ejs');
   app.set('views', resolveViewsDir());
 
+  // 静态资源版本：改 public/ 下任何文件后把 '2' 升到 '3'，
+  // 并同步改 public/sw.js 里的 CACHE 名与 ASSETS，否则用户端 Service Worker 缓存不失效
+  app.locals.STATIC_VER = '2';
+
   // 静态资源：线上由 Netlify CDN 直出 publish 目录，这里的 static 仅本地生效
   app.use(express.static(path.join(process.cwd(), 'public')));
   app.use('/uploads', express.static(config.uploadsDir));

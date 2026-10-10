@@ -32,6 +32,17 @@ function parseItemIds(body) {
   return raw.map(Number).filter((n) => Number.isInteger(n) && n > 0);
 }
 
+// 人形预览数据：物品 → { id, name, slot, image, icon }
+function toDollItem(it) {
+  return {
+    id: it.id,
+    name: it.name,
+    slot: it.slot || '',
+    image: it.images && it.images[0] ? it.images[0] : '',
+    icon: it.category_icon || '',
+  };
+}
+
 async function saveOutfit(req, res, outfit) {
   const ids = parseItemIds(req.body);
   if (!ids.length) throw httpError(400, '至少勾选一件衣物');
@@ -64,10 +75,15 @@ async function saveOutfit(req, res, outfit) {
 
 async function renderForm(req, res, outfit) {
   const items = await listOutfitItems();
+  // 编辑模式：按已选顺序给出初始预览数据（同部位后者覆盖，与前端勾选顺序一致）
+  const initDollItems = outfit
+    ? outfit.itemIds.map((id) => items.find((it) => it.id === id)).filter(Boolean).map(toDollItem)
+    : [];
   res.render('outfit-form', {
     title: outfit ? '编辑搭配' : '创建搭配', activeTab: 'outfits',
     mode: outfit ? 'edit' : 'new',
     outfit, items,
+    initDollItems,
     allSeasons: SEASONS, allOccasions: OCCASIONS,
   });
 }
@@ -119,6 +135,7 @@ router.get('/:id', async (req, res, next) => {
     res.render('outfit-detail', {
       title: outfit.name, activeTab: 'outfits',
       outfit, members,
+      dollItems: members.map(toDollItem),
       occasionLabels: { work: '通勤', casual: '休闲', date: '约会', sport: '运动', formal: '正式', home: '居家' },
       seasonLabels: { spring: '春', summer: '夏', autumn: '秋', winter: '冬' },
     });

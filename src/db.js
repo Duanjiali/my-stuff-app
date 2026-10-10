@@ -38,6 +38,7 @@ async function initDb() {
     seasons TEXT DEFAULT '[]',
     occasions TEXT DEFAULT '[]',
     formality INTEGER,
+    slot TEXT DEFAULT '',
     ext TEXT DEFAULT '{}',
     status TEXT DEFAULT 'active',
     wear_count INTEGER DEFAULT 0,
@@ -62,6 +63,11 @@ async function initDb() {
     count INTEGER DEFAULT 0,
     window_start INTEGER
   )`);
+
+  // 迁移：旧库补 items.slot 列（新库建表已含该列，ALTER 会报 duplicate column，忽略即可）
+  try {
+    await db.execute("ALTER TABLE items ADD COLUMN slot TEXT DEFAULT ''");
+  } catch { /* 列已存在 */ }
 
   await seedCategories();
 }

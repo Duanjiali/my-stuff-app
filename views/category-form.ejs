@@ -41,5 +41,5 @@
   window.FIELD_TYPES = <%- JSON.stringify(['text', 'number', 'date', 'select', 'bool']) %>;
   window.INIT_SCHEMA = <%- JSON.stringify(cat ? cat.fieldSchema : []) %>;
 </script>
-<script src="/js/category-form.js"></script>
+<script src="/js/category-form.js?v=<%= STATIC_VER %>"></script>
 <%- include('partials/nav', { activeTab: activeTab }) %>
